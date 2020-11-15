@@ -1,0 +1,29 @@
+function simom=GenSimulatedMoments(beta,eta_h,eta_l,R,sigma,kappa,phi,mu_unc,sigma_unc,N,T)
+
+[~,~,money,payment,~,~,~]=...
+    SolveModel(beta,eta_h,eta_l,R,sigma,kappa,phi,mu_unc,sigma_unc,N,T);
+cut=11;
+simom.share_cash           = mean(mean(payment.method));
+simom.cash_share_030    = length(nonzeros(payment.cash(payment.cash>=0 &...
+    payment.cash<30)))/(length(nonzeros(payment.cash(payment.cash>=0 &...
+    payment.cash<30)))+...
+    length(nonzeros(payment.cashless(payment.cashless>=0 & payment.cashless<30))));
+simom.cash_share_30100    = length(nonzeros(payment.cash(payment.cash>=30 &...
+    payment.cash<100)))/(length(nonzeros(payment.cash(payment.cash>=30 &...
+    payment.cash<100)))+...
+    length(nonzeros(payment.cashless(payment.cashless>=30 & payment.cashless<100))));
+simom.cash_share_100more    = length(nonzeros(payment.cash(payment.cash>=100)))/...
+    (length(nonzeros(payment.cash(payment.cash>=100)))+...
+    length(nonzeros(payment.cashless(payment.cashless>=100))));
+simom.avg_cash             = mean(mean(money.path(:,cut*2:end)));
+simom.avg_cash_after_adj   = mean(mean(nonzeros(money.aft_adj(:,cut:end))));
+simom.avg_adjustment       = mean(mean(nonzeros(money.adjust(:,cut:end))));
+simom.avg_cash_payment     = mean(mean(nonzeros(payment.cash(:,cut:end))));
+simom.avg_cashless_payment = mean(mean(nonzeros(payment.cashless(:,cut:end))));
+%simom.sd_cash_payment      = mean(std(nonzeros(payment.cash(:,cut:end))));
+%simom.sd_cashless_payment  = mean(std(nonzeros(payment.cashless(:,cut:end))));
+simom.sd__payment           = mean(std(nonzeros(payment.all(:,cut:end))));
+if isnan(simom.avg_adjustment)
+    simom.avg_adjustment=0;
+end
+end
